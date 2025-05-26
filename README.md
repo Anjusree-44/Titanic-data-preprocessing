@@ -1,3 +1,5 @@
+![Screenshot (14)](https://github.com/user-attachments/assets/cf58f379-17b0-4364-abe6-4b8b5d80d626)
+![Screenshot (14)](https://github.com/user-attachments/assets/1bbe4d38-cc55-4d24-93b2-b881f64cf2f6)
 # Import necessary libraries
 import pandas as pd
 import numpy as np
