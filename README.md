@@ -1,84 +1,80 @@
-# Titanic-data-preprocessing
-# 🚢 Titanic Data Cleaning & Preprocessing
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler, MinMaxScaler
 
-This repository contains the solution for **Task 1: Data Cleaning & Preprocessing** as part of the **AI & ML Internship Program**.
+# Load the dataset
+df = pd.read_csv("Titanic.csv")  # Ensure Titanic.csv is in your working directory
 
-## 📌 Objective
+# 1. Explore the data
+print("First 5 rows of the dataset:")
+print(df.head())
 
-To learn how to clean and prepare raw data for Machine Learning by handling missing values, encoding categorical features, scaling numerical features, and detecting/removing outliers.
+print("\nData Info:")
+print(df.info())
 
----
+print("\nMissing Values:")
+print(df.isnull().sum())
 
-## 📁 Files Included
+# 2. Handle missing values
+# Fill Age with median, Cabin with 'Unknown', Embarked with mode
+df['Age'].fillna(df['Age'].median(), inplace=True)
+df['Cabin'].fillna('Unknown', inplace=True)
+df['Embarked'].fillna(df['Embarked'].mode()[0], inplace=True)
 
-| File | Description |
-|------|-------------|
-| `Titanic data preprocessing.py`  | vistual studio code |
-| `Titanic.csv` | Raw Titanic dataset (upload manually from Kaggle) |
-| `cleaned_titanic.csv` | Final cleaned dataset after preprocessing |
-| `README.md` | You are here! Documentation and explanation of the task |
+print("\nMissing Values After Imputation:")
+print(df.isnull().sum())
 
----
+# 3. Convert categorical variables to numeric
+# Drop Ticket and Name for simplicity
+df.drop(['Ticket', 'Name'], axis=1, inplace=True)
 
-## 🧰 Tools Used   
+# Label encode 'Sex'
+le = LabelEncoder()
+df['Sex'] = le.fit_transform(df['Sex'])  # male: 1, female: 0
 
-- **Python**
-- **Pandas**, **NumPy**
-- **Matplotlib**, **Seaborn**
-- **Scikit-learn**
-- **Google Colab** or **VS Code**
+# One-hot encode 'Embarked'
+df = pd.get_dummies(df, columns=['Embarked'], drop_first=True)
 
----
+# Optional: Simplify Cabin (use just first letter)
+df['Cabin'] = df['Cabin'].apply(lambda x: x[0] if x != 'Unknown' else 'U')
+df = pd.get_dummies(df, columns=['Cabin'], drop_first=True)
 
-## 🔧 Steps Performed
+# 4. Normalize/Standardize numerical features
+# MinMax Scaling Age and Fare
+scaler = MinMaxScaler()
+df[['Age', 'Fare']] = scaler.fit_transform(df[['Age', 'Fare']])
 
-1. **Loaded Dataset** from `Titanic.csv`
-2. **Explored Basic Info**: shape, null values, data types
-3. **Handled Missing Values**:
-   - `Age`: filled with median
-   - `Cabin`: filled with 'Unknown'
-   - `Embarked`: filled with mode
-4. **Dropped Irrelevant Columns**: `Name`, `Ticket`
-5. **Encoded Categorical Columns**:
-   - Label encoding for `Sex`
-   - One-hot encoding for `Embarked` and `Cabin`
-6. **Normalized Numerical Features**:
-   - `Age` and `Fare` scaled using `MinMaxScaler`
-7. **Visualized and Removed Outliers**:
-   - Used boxplots and IQR method
-8. **Saved Cleaned Dataset**: `cleaned_titanic.csv`
+# 5. Visualize outliers using boxplots
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+sns.boxplot(data=df, y='Age')
+plt.title("Boxplot of Age")
 
----
+plt.subplot(1, 2, 2)
+sns.boxplot(data=df, y='Fare')
+plt.title("Boxplot of Fare")
 
-## 📊 Sample Output (Cleaned Data)
+plt.tight_layout()
+plt.show()
 
-| PassengerId | Survived | Pclass | Sex | Age | Fare | ... |
-|-------------|----------|--------|-----|-----|------|-----|
-| 1           | 0        | 3      | 1   | 0.25| 0.014| ... |
+# Remove outliers using IQR method (optional but recommended)
+def remove_outliers_iqr(df, column):
+    Q1 = df[column].quantile(0.25)
+    Q3 = df[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower = Q1 - 1.5 * IQR
+    upper = Q3 + 1.5 * IQR
+    return df[(df[column] >= lower) & (df[column] <= upper)]
 
----
+df = remove_outliers_iqr(df, 'Fare')
+df = remove_outliers_iqr(df, 'Age')
 
-## 🔗 Dataset Source
+print("\nCleaned Data Shape:", df.shape)
+print("\nFinal Preview of Cleaned Data:")
+print(df.head())
 
-- [Titanic Dataset on Kaggle](https://www.kaggle.com/datasets/yasserh/titanic-dataset)
-
-
----
-
-## 📚 Interview Prep (Topics to Study)
-
-- Types of missing data
-- Categorical encoding (One-hot vs Label encoding)
-- Normalization vs Standardization
-- Outlier detection methods
-- Why preprocessing is crucial
-- Handling data imbalance
-- How preprocessing affects model accuracy
-
----
-
-## ✅ Author
-
-- Internship Participant: Katta Anju Sree
-- Internship Program: *AI & ML Internship by Elevate Labs
-
+# Save cleaned data
+df.to_csv("cleaned_titanic.csv", index=False)
