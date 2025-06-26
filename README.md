@@ -17,7 +17,9 @@ To learn how to clean and prepare raw data for Machine Learning by handling miss
 ---
 
 # Dataset
+https://www.kaggle.com/datasets/yasserh/titanic-dataset
 
-![Screenshot (14)](https://github.com/user-attachments/assets/1bbe4d38-cc55-4d24-93b2-b881f64cf2f6)
+# Screenshot
 
+![1](https://github.com/user-attachments/assets/1d676c01-9e2b-4a53-b5ed-8c9f0478a4a1)
 
